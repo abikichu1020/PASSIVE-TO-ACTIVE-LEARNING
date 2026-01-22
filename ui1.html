@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡NEXUS: AI-Powered Learning Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background */
+        .bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%);
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-30px) rotate(180deg) scale(1.2); }
+        }
+
+        /* Grid lines */
+        .grid-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridShift 20s linear infinite;
+        }
+
+        @keyframes gridShift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        .header {
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            color: transparent;
+            background: linear-gradient(45deg, #00d4ff, #ff6b6b, #4ecdc4, #45b7d1);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-top: 1rem;
+        }
+
+        /* Status bar */
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 1rem 1.5rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .status-item:hover::before {
+            left: 100%;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .online { background: #00ff88; }
+        .warning { background: #ffa502; }
+        .offline { background: #ff4757; }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Dashboard grid */
+        .dashboard-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Service cards */
+        .service-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .service-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            animation: iconFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+
+        .service-title {
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .service-description {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Progress bars with animation */
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00d4ff, #ff6b6b);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            transition: width 2s ease;
+            animation: progressShimmer 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: progressGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes progressGlow {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        /* Action buttons */
+        .service-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 1rem 1.2rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .action-btn:hover::before {
+            left: 100%;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00d4ff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Auto-updating indicators */
+        .auto-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2.5rem; }
+            .dashboard-grid { 
+                grid-template-columns: 1fr;
+                padding: 0 1rem; 
+            }
+            .status-bar { 
+                flex-direction: column;
+                align-items: center; 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-canvas" id="bgCanvas"></div>
+    <div class="grid-overlay"></div>
+    
+    <div class="header">
+        <h1>⚡NEXUS</h1>
+        <p>AI-Powered Learning Hub</p>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <span class="status-dot online"></span>
+            <span>System Online</span>
+            <div class="auto-indicator"></div>
+        </div>
+        <div class="status-item">
+            <span class="status-dot warning"></span>
+            <span>6 Services Active</span>
+        </div>
+        <div class="status-item">
+            <span class="status-dot online"></span>
+            <span>Network Connected</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="service-card" data-service="molecules">
+            <span class="service-icon">🧬</span>
+            <div class="service-title">Molecular Dynamics</div>
+            <div class="service-description">Advanced molecular simulation and analysis platform</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="http://127.0.0.1:5000" target="_blank" class="action-btn btn-primary">Launch</a>
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+
+        <div class="service-card" data-service="solar">
+            <span class="service-icon">☀</span>
+            <div class="service-title">Solar Analytics</div>
+            <div class="service-description">Comprehensive solar energy monitoring system</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 72%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="http://10.66.76.141:5000" target="_blank" class="action-btn btn-primary">Launch</a>
+               
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+
+        <div class="service-card" data-service="physics">
+            <span class="service-icon">⚛</span>
+            <div class="service-title">Classic Physics Lab</div>
+            <div class="service-description">Interactive quantum mechanics simulator</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 91%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="http://127.0.0.1:5002" target="_blank" class="action-btn btn-primary">Launch</a>
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+
+        <div class="service-card" data-service="music">
+            <span class="service-icon">🎵</span>
+            <div class="service-title">Audio Synthesis Studio</div>
+            <div class="service-description">Professional audio processing platform</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 67%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="http://127.0.0.1:5003" target="_blank" class="action-btn btn-primary">Launch</a>
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+
+        <div class="service-card" data-service="digital-twin">
+            <span class="service-icon">🤖</span>
+            <div class="service-title">Digital Twin Engine</div>
+            <div class="service-description">Real-time digital replica system</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 88%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="http://127.0.0.1:5004" target="_blank" class="action-btn btn-primary">Launch</a>
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+
+        <div class="service-card" data-service="anatomy">
+            <span class="service-icon">🫀</span>
+            <div class="service-title">Human Anatomy Lab</div>
+            <div class="service-description">Interactive 3D human anatomy visualization system</div>
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 79%"></div>
+                </div>
+            </div>
+            <div class="service-actions">
+                <a href="#" target="_blank" class="action-btn btn-primary">Launch</a>
+            </div>
+            <div class="auto-indicator"></div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Create animated background particles
+        function createParticles() {
+            const canvas = document.getElementById('bgCanvas');
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.width = (Math.random() * 4 + 2) + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+                canvas.appendChild(particle);
+            }
+        }
+
+        // Auto-update metrics with realistic fluctuations
+        function updateMetrics() {
+            // Metrics section removed
+        }
+
+        // Progress bar animations
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const targetWidth = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = targetWidth;
+                }, 500);
+            });
+        }
+
+        // Button interaction effects
+        function addButtonEffects() {
+            const buttons = document.querySelectorAll('.action-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    if (btn.tagName === 'BUTTON') {
+                        e.preventDefault();
+                        const originalText = btn.textContent;
+                        btn.innerHTML = '<span class="loading"></span>';
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                        }, 2000);
+                    }
+                });
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1': e.preventDefault(); window.open('http://127.0.0.1:5000', '_blank'); break;
+                    case '2': e.preventDefault(); window.open('http://10.66.76.141:5000', '_blank'); break;
+                    case '3': e.preventDefault(); window.open('http://127.0.0.1:5002', '_blank'); break;
+                    case '4': e.preventDefault(); window.open('http://127.0.0.1:5003', '_blank'); break;
+                    case '5': e.preventDefault(); window.open('http://127.0.0.1:5004', '_blank'); break;
+                }
+            }
+        });
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            addButtonEffects();
+            setTimeout(animateProgressBars, 1000);
+            
+            // Add hover sound effects (visual feedback only)
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.boxShadow = '0 30px 60px rgba(0, 212, 255, 0.3)';
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.boxShadow = '';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

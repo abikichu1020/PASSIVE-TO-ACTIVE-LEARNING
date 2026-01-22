@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Unified Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f5f5f5; }
+        h1 { margin-top: 30px; }
+        .menu { margin-top: 40px; }
+        .menu a {
+            display: block;
+            margin: 15px auto;
+            padding: 15px 30px;
+            width: 300px;
+            text-decoration: none;
+            color: white;
+            background: #0078D7;
+            border-radius: 10px;
+            font-size: 18px;
+        }
+        .menu a:hover { background: #005fa3; }
+    </style>
+</head>
+<body>
+    <h1>🚀 My Unified Dashboard</h1>
+    <div class="menu">
+        <a href="http://127.0.0.1:5000" target="_blank">Molecules</a>
+        <a href="http://10.66.76.141:5000" target="_blank">Solar</a>
+        <a href="http://127.0.0.1:5002" target="_blank">Physics</a>
+        <a href="http://127.0.0.1:5003" target="_blank">Music</a>
+        <a href="{{ url_for('static', filename='organ.html') }}" target="_blank">Organ</a>
+    </div>
+</body>
+</html>
